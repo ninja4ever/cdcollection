@@ -10,11 +10,14 @@ class Main {
                 $this->connection = new PDO(DB_SERVER, DB_USERNAME, DB_PASSWORD);
                 $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $e) {
-                echo 'Połączenie nie mogło zostać utworzone.<br />';
+                echo 'Połączenie nie mogło zostać utworzone.<br />'.$e;
             }
         }
     }
-
+/**
+ * Funkcja wyświetlająca wszystkie elementy na stronie
+ * @param int $page
+ */
     public function view($page){
     	$limit = 5;
         if ($page)
@@ -53,7 +56,6 @@ class Main {
 			<tr>
 				<th>Nazwa CD</th>
 			  	<th>Data dodania</th>
-			  
 			  	<th>Wykonawca</th>
 			  	<th>data Wydania</th>
 			  	<th>Pokaż</th>
@@ -109,7 +111,9 @@ class Main {
        				</div>';
    			}
 	}
-
+/**
+ * dodawanie nowego elementu do bazy danych
+ */
     public function add_cd(){
     		echo '<script type="text/javascript" src="js/tinymce/tinymce.min.js"></script>';
                 echo '<script type="text/javascript">
@@ -155,6 +159,9 @@ class Main {
                 <img src="./image/save_ico.png">Zapisz</button>';
                 echo '</div></form>';
     }
+    /**
+     * funkcja zapisująca dane w bazie danych (insert i update)
+     */
     public function save_cd(){
     	if($_POST){
     		if (!empty($_POST['wykonawca']) && !empty($_POST['opis']) && !empty($_POST['nazwa']) && !empty($_POST['data'])) {
@@ -193,9 +200,12 @@ class Main {
     		}
     		else { error('index.php?f=addcd',2,'Nie wpisano wymaganych danych!.');}
     	}
-    	else die();
+        else {die();}
     }
-
+/**
+ * Funckja do edycji wybranego elementu 
+ * @param int $idcd
+ */
     public function edit_cd($idcd){
     	echo '<script type="text/javascript" src="js/tinymce/tinymce.min.js"></script>';
                 echo '<script type="text/javascript">
@@ -229,7 +239,7 @@ class Main {
         ';
         $sql = 'SELECT * FROM cdinfo WHERE idcdinfo=:id';
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(':id', $idcd, PDO::PARAM_STR);
+        $stmt->bindValue(':id', $idcd, PDO::PARAM_INT);
         $stmt->execute();
         $data = $stmt->fetchAll(); // fetching rows
         $count = $stmt->rowCount();
@@ -256,18 +266,24 @@ class Main {
         }
 
     }
-
+/**
+ * Usuwanie wybranego elementu
+ * @param int $idcd
+ */
     public function del_cd($idcd){
         $stmt = $this->connection->prepare("DELETE FROM cdinfo WHERE idcdinfo=:id");
         $stmt->bindValue(':id', $idcd, PDO::PARAM_INT);
         $stmt->execute();
         error("index.php?f=view", 2, "Usunieto dane CD");
     }
-
+/**
+ * Pokazanie wybranego elementu
+ * @param int $idcd
+ */
     public function view_single($idcd){
     	$sql = 'SELECT * FROM cdinfo WHERE idcdinfo=:id';
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(':id', $idcd, PDO::PARAM_STR);
+        $stmt->bindValue(':id', $idcd, PDO::PARAM_INT);
         $stmt->execute();
         $data = $stmt->fetchAll(); // fetching rows
         $count = $stmt->rowCount();
